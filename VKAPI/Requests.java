@@ -51,6 +51,63 @@ public class Requests {
         }
         return answer;
     }
+
+    public String sendFileOnServer(String http, File file){
+        try{
+            FileInputStream isr = new FileInputStream(file);
+            String typeName = "photo";
+            String attachmentFileName = file.getName();
+            String crlf = "\r\n";
+            String twoHyphens = "--";
+            String boundary =  "*****";
+            HttpURLConnection httpUrlConnection = null;
+            URL url = new URL(http);
+            httpUrlConnection = (HttpURLConnection) url.openConnection();
+            httpUrlConnection.setUseCaches(false);
+            httpUrlConnection.setDoOutput(true);
+
+            httpUrlConnection.setRequestMethod("POST");
+            httpUrlConnection.setRequestProperty("Connection", "Keep-Alive");
+            httpUrlConnection.setRequestProperty("Cache-Control", "no-cache");
+            httpUrlConnection.setRequestProperty(
+                "Content-Type", "multipart/form-data;boundary=" + boundary);
+            DataOutputStream request = new DataOutputStream(httpUrlConnection.getOutputStream());
+            request.writeBytes(twoHyphens + boundary + crlf);
+            request.writeBytes("Content-Disposition: form-data; name=\"" +typeName
+                                + "\";filename=\"" + attachmentFileName 
+                                + "\"" + crlf);
+            request.writeBytes(crlf);
+
+
+            request.write(isr.readAllBytes());
+            request.writeBytes(crlf);
+            request.writeBytes(twoHyphens + boundary + twoHyphens + crlf);
+            request.flush();
+            request.close();
+
+            InputStream responseStream = new BufferedInputStream(httpUrlConnection.getInputStream());
+            BufferedReader responseStreamReader = new BufferedReader(new InputStreamReader(responseStream));
+            String line = "";
+            StringBuilder stringBuilder = new StringBuilder();
+            while ((line = responseStreamReader.readLine()) != null) {
+                stringBuilder.append(line).append("\n");
+            }
+            responseStreamReader.close();
+            String response = stringBuilder.toString();
+            return response;
+        }catch(Exception ex){
+            System.out.println(ex);
+        }
+        return null;
+
+    }
+
+
+
+
+
+
+
     public static String booleanTonumStr(boolean value){
         return value?"1":"0";
     }
@@ -61,6 +118,7 @@ public class Requests {
     public static String useControlSym(String str){
         str = str.replace("\\n", "\n");
         str = str.replace("\\/","/" );
+        str = str.replace("\\\"","'" );
         return str;
     }
     public static String encodeTextFromHttp(String str){

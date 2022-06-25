@@ -9,10 +9,33 @@ public class Messages {
                                         "&count="+count+
                                         "&user_id="+user_id);
     }
+    /**
+     * Send message with attachments photo
+     * @param requests 
+     * @param user_id 
+     * @param random_id 
+     * @param message text message for sending
+     * @param file only photo format
+     */
+    public static void sendMessageWithFile(Requests requests, String user_id, int random_id, String message, File file){
+        VKAPI.Object.Photo ph = new VKAPI.Object.Photo();
+        String serverurl = ph.getMessagesUploadServer(requests, user_id);
+        serverurl = Requests.useControlSym(ParseJSON.getArgs("upload_url", serverurl));
+        String answer = requests.sendFileOnServer(serverurl, file);
+        answer = Requests.useControlSym(answer);
+        String server = ParseJSON.getArgs("server", answer);
+        String photo = ParseJSON.getArgs("photo", answer);
+        photo = photo.replace('\'', '"');
+        String hash = ParseJSON.getArgs("hash", answer);
+        answer = ph.saveMessagesPhoto(requests, server, hash, photo);
+        ph.parseAttach("\"photo\":"+answer);
+        sendMessage(requests, user_id, random_id, message+"&attachment="+ph.toString());
+    }
     public static void sendMessage(Requests requests,String user_id, int random_id, String message){
         try{
            //message = URLEncoder.encode(message, "UTF-8");
-           requests.createVKResponse(name+".send?"
+           message = Requests.encodeTextFromHttp(message);
+           requests.createVKResponse("messages.send?"
                             + "user_id="+user_id
                             + "&random_id="+random_id
                             + "&message="+message

@@ -33,7 +33,7 @@ public class Photo extends Attachments {
         try {
             answer = ParseJSON.getArgs(name, answer);
         } catch (RuntimeException ex) {
-            throw new RuntimeException("Фото не обнаружено");
+            throw new RuntimeException("Photo is not found");
         }
         this.id = Integer.parseInt(ParseJSON.getArgs("id", answer));
         this.owner_id = Integer.parseInt(ParseJSON.getArgs("owner_id", answer));
@@ -79,6 +79,17 @@ public class Photo extends Attachments {
     @Override
     public String toString() {
         return name + owner_id + "_" + id;
+    }
+
+    public String getMessagesUploadServer(Requests requests, String peer_id){
+        return requests.createVKResponse("photos.getMessagesUploadServer?"
+                                        + "peer_id="+peer_id);  
+    }
+    public String saveMessagesPhoto(Requests requests, String server, String hash, String photo){
+        return requests.createVKResponse("photos.saveMessagesPhoto?"
+                                        + "photo="+photo
+                                        + "&server="+server
+                                        + "&hash="+hash);
     }
 
 }
