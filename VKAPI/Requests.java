@@ -1,16 +1,20 @@
 package VKAPI;
 
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import javax.net.ssl.HttpsURLConnection;
 
 
 public class Requests {
-  private String key;
-  public boolean info = false;
+    private String key;
+    public boolean info = false;
     public String getKey(){
         return key;
     }
@@ -22,34 +26,35 @@ public class Requests {
                       + "&access_token="+key
                       + "&v=5.130";
         return SendResponse(url); 
-        
     }
-    public String SendResponse(String http){
-        String answer = new String();
+    public String SendResponse(String https){
+        String response = new String();
         try {
 
-            URL obj = new URL(http);
-            HttpURLConnection connection = (HttpURLConnection) obj.openConnection();
+            BufferedReader in;
+            URL url = new URL(https);
+            HttpsURLConnection connection = (HttpsURLConnection)url.openConnection();
             connection.setRequestMethod("GET");
-
-            BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            connection.setRequestProperty("Accept-Charset", "UTF-8");
+            try {
+                in = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF8"));
+            } catch (Exception e) {
+                in = new BufferedReader(new InputStreamReader(connection.getErrorStream(), "UTF8"));
+            }
             String inputLine;
-            StringBuffer response = new StringBuffer();
-            answer = response.toString(); 
-            while ((inputLine = in.readLine()) != null) {
-              response.append(inputLine);
+            while((inputLine = in.readLine())!=null){
+                response += inputLine;
             }
             in.close();
-            answer = response.toString();   
         }
         catch(Exception e){
             System.out.println(e);
         }
         if(info){
-            System.out.println(http);
-            System.out.println(answer);
+            System.out.println(https);
+            System.out.println(response);
         }
-        return answer;
+        return response;
     }
 
     public String sendFileOnServer(String http, File file){
@@ -60,6 +65,7 @@ public class Requests {
             String crlf = "\r\n";
             String twoHyphens = "--";
             String boundary =  "*****";
+
             HttpURLConnection httpUrlConnection = null;
             URL url = new URL(http);
             httpUrlConnection = (HttpURLConnection) url.openConnection();
@@ -77,16 +83,14 @@ public class Requests {
                                 + "\";filename=\"" + attachmentFileName 
                                 + "\"" + crlf);
             request.writeBytes(crlf);
-
-
-            request.write(isr.readAllBytes());
+            request.write(isr.readAllBytes());//Write file
+            isr.close();
             request.writeBytes(crlf);
             request.writeBytes(twoHyphens + boundary + twoHyphens + crlf);
             request.flush();
             request.close();
 
-            InputStream responseStream = new BufferedInputStream(httpUrlConnection.getInputStream());
-            BufferedReader responseStreamReader = new BufferedReader(new InputStreamReader(responseStream));
+            BufferedReader responseStreamReader = new BufferedReader(new InputStreamReader(httpUrlConnection.getInputStream(), "UTF8"));
             String line = "";
             StringBuilder stringBuilder = new StringBuilder();
             while ((line = responseStreamReader.readLine()) != null) {
@@ -101,12 +105,6 @@ public class Requests {
         return null;
 
     }
-
-
-
-
-
-
 
     public static String booleanTonumStr(boolean value){
         return value?"1":"0";
@@ -132,14 +130,15 @@ public class Requests {
     }
     public static String decodeTextFromHttp(String str){
          try{
-            str = URLDecoder.decode(str,"Cp1251");
+            str = URLDecoder.decode(str,"UTF-8");
             }catch(Exception ex){
                 System.out.println(ex);
             }
         
         return str;
     }
-    
+
+    @Deprecated
     public static String DecodeBL(String str){
        char[] hm = str.toCharArray();
        char sym;
@@ -159,6 +158,7 @@ public class Requests {
        str = word;
        return str;
        }
+    @Deprecated
     public static char DecodeBL(int sym){
         char q = '0';
         if (sym == 1232){
