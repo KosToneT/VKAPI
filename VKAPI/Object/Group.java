@@ -7,12 +7,12 @@ public class Group {
     String screen_name;
     boolean is_closed;
     String photo_200;
-    public Post getLastPost(Manager manager){
-        return manager.getPost(domain, 0);
-    }
-    public Post getPost(Manager manager, int offset){
-        return manager.getPost(domain, offset);
-    }
+    // public Post getLastPost(Manager manager){
+    //     return manager.getPost(domain, 0);
+    // }
+    // public Post getPost(Manager manager, int offset){
+    //     return manager.getPost(domain, offset);
+    // }
     public int getId(){
         return id;
     }

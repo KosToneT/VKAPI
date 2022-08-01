@@ -12,14 +12,14 @@ package VKAPI;
 public class Wall {
     private static final String name = "wall.";
     public static  String createComment(Requests requests, String owner_id, String post_id, String message,int guid ){
-     return requests.createVKResponse(name+"createComment?owner_id="+owner_id
+        return requests.createVKResponse(name+"createComment?owner_id="+owner_id
                                         +"&post_id="+post_id
                                         +"&message="+message
                                         +"&guid="+guid);
         
     }
     public static  String createComment(Requests requests, String owner_id,String from_group, String post_id, String message,int guid ){
-    return requests.createVKResponse(name+"createComment?owner_id="+owner_id
+        return requests.createVKResponse(name+"createComment?owner_id="+owner_id
                                         +"&from_group="+from_group
                                         +"&post_id="+post_id
                                         +"&message="+message
@@ -53,6 +53,9 @@ public class Wall {
                                              +"&sort="+sort);
     }
     /**
+     * 
+     * @param guid it is post id
+     * 
      * Создает пост
      * attachmentsобъект или несколько объектов, приложенных к записи.
         К записи можно приложить медиа или ссылку на внешнюю страницу. Если объектов несколько, их нужно указать через запятую ",".
@@ -96,14 +99,13 @@ public class Wall {
         список слов, разделенных через запятую
      */
     public static String post(Requests requests,String owner_id, boolean friends_only, boolean from_group, String message, String attachments,boolean signed, int guid, boolean close_comments){
-        return requests.createVKResponse(name+"post?owner_id=-"+owner_id
-                                             +"&friends_only="+Requests.booleanTonumStr(friends_only)
-                                             +"&from_group="+Requests.booleanTonumStr(from_group)
-                                             +"&message="+message
+        return requests.createVKResponse(name+"post?owner_id="+owner_id
+                                             +"&friends_only="+(friends_only?"1":"0")
+                                             +"&from_group="+(from_group?"1":"0")
                                              +"&attachments="+ attachments
-                                             +"&signed="+Requests.booleanTonumStr(signed)
+                                             +"&signed="+(signed?"1":"0")
                                              +"&guid="+guid
-                                             +"&close_comments="+Requests.booleanTonumStr(close_comments));
+                                             +"&close_comments="+(close_comments?"1":"0"), message);
     }
     
     
