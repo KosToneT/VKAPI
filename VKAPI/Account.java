@@ -38,19 +38,6 @@ public class Account {
     public static String getProfileInfo(Requests requests){
         return requests.createVKResponse(name+"getProfileInfo?");
     }
-    /**
-     * get My user ID Profile
-     * @param req with user token
-     * @return user id
-     */
-    public static int getProfileId(Requests req){
-        String JSON = Account.getProfileInfo(req);
-        JSONParse.JSONObject jOBj = JSONParse.JSONObject.parse(JSON);
-        jOBj = (JSONParse.JSONObject)jOBj.get(0).getValue().value;
-        int id = (int)jOBj.get("id").getValue().value;
-        return id;
-    }
-
     public static String getPushSettings(Requests requests, String device_id){
         return requests.createVKResponse(name+"getPushSettings?"+"device_id="+device_id);
     }
@@ -63,7 +50,6 @@ public class Account {
                                        +"&settings="+ settings
                                        +"&sandbox="+sandbox);
     }
-
     public static String saveProfileInfo(Requests requests, String first_name, String last_name, String maiden_name, String screen_name, String cancel_request_id, String sex, String relation,String relation_partner_id, String bdate, String bdate_visibility, String home_town, String country_id, String city_id, String status){
         return requests.createVKResponse(name+"saveProfileInfo?"
                                        +"first_name="+first_name
@@ -81,7 +67,6 @@ public class Account {
                 
         );
     }
-
     public static String setOnline(Requests requests){
         return requests.createVKResponse(name+"setOnline?");
     }
