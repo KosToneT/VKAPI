@@ -11,7 +11,7 @@ import VKAPI.Object.User;
 //TODO: need add update listen interface for command from users
 public class VKTest {
     public static void main(String args[]){
-        String TOKEN = "4d08d0b06c2af61648d0a26e5a58d219e884562041fcfa6b8d3ad74f4a3dd4a49863fb5eb927de31d5fe7";
+        String TOKEN = "";
         Requests req = new Requests(TOKEN);
         //Wall.post(req, owner_id, friends_only, from_group, message, attachments, signed, guid, close_comments)
         int id = Account.getProfileId(req);
