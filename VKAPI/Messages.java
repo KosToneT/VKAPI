@@ -2,6 +2,12 @@ package VKAPI;
 
 import java.io.File;
 
+import VKAPI.JSONParse.JSONElements;
+import VKAPI.JSONParse.JSONObject;
+import VKAPI.Object.Photo;
+
+import java.awt.image.BufferedImage;
+
 public class Messages {
     private static String name = "messages.";
     public static String getHistory(Requests requests, int offset, int count, String user_id){
@@ -18,33 +24,69 @@ public class Messages {
      * @param message text message for sending
      * @param file only photo format
      */
-    public static void sendMessageWithFile(Requests requests, String user_id, int random_id, String message, File file){
-        //VKAPI.Object.Photo ph = new VKAPI.Object.Photo();
-        //String serverurl = ph.getMessagesUploadServer(requests, user_id);
-        
-        // serverurl = Requests.useControlSym(ParseJSON.getArgs("upload_url", serverurl));
-        // String answer = requests.sendFileOnServer(serverurl, file);
-        // answer = Requests.useControlSym(answer);
-        // String server = ParseJSON.getArgs("server", answer);
-        // String photo = ParseJSON.getArgs("photo", answer);
-        // photo = photo.replace('\'', '"');
-        // String hash = ParseJSON.getArgs("hash", answer);
-        // answer = ph.saveMessagesPhoto(requests, server, hash, photo);
-        // ph.parseAttach("\"photo\":"+answer);
-        // sendMessage(requests, user_id, random_id, message+"&attachment="+ph.toString());
+    public static void sendMessage(Requests requests, String user_id, long random_id, String message, File file){
+        VKAPI.Object.Photo ph = new VKAPI.Object.Photo();
+        String JSON = ph.getMessagesUploadServer(requests, user_id);
+        JSONParse.JSONObject jObj = (JSONParse.JSONObject)(JSONParse.JSONObject.parse(JSON).get("response").getValue().value);
+        String serverurl = jObj.get("upload_url").getValue().value+"";
+        serverurl = serverurl.substring(0, serverurl.length());
+        serverurl = Requests.useControlSym(serverurl);
+        JSON = requests.sendFileOnServer(serverurl, file);
+        jObj = JSONParse.JSONObject.parse(JSON);
+        String server = jObj.get("server").getValue().value+"";
+        String photo = jObj.get("photo").getValue().value+"";
+        String hash = jObj.get("hash").getValue().value+"";
+        JSON = ph.saveMessagesPhoto(requests, server, hash, photo);
+        jObj = JSONParse.JSONObject.parse(JSON);
+        JSONElements el = (JSONElements)jObj.get("response").getValue().value;
+        ph = new Photo((JSONObject)el.get(0).value);
+        sendMessage(requests, user_id, random_id, message, ph.toPost());
+    }
+
+    /**
+     * Send message with attachments photo
+     * @param requests 
+     * @param user_id 
+     * @param random_id 
+     * @param message text message for sending
+     * @param image 
+     */
+    public static void sendMessage(Requests requests, String user_id, long random_id, String message, BufferedImage image){
+        VKAPI.Object.Photo ph = new VKAPI.Object.Photo();
+        String JSON = ph.getMessagesUploadServer(requests, user_id);
+        JSONParse.JSONObject jObj = (JSONParse.JSONObject)(JSONParse.JSONObject.parse(JSON).get("response").getValue().value);
+        String serverurl = jObj.get("upload_url").getValue().value+"";
+        serverurl = serverurl.substring(0, serverurl.length());
+        serverurl = Requests.useControlSym(serverurl);
+        JSON = requests.sendImageOnServer(serverurl, image);
+        jObj = JSONParse.JSONObject.parse(JSON);
+        String server = jObj.get("server").getValue().value+"";
+        String photo = jObj.get("photo").getValue().value+"";
+        photo = Requests.useControlSym(photo);
+        photo = photo.replace('\'', '"');
+        String hash = jObj.get("hash").getValue().value+"";
+        JSON = ph.saveMessagesPhoto(requests, server, hash, photo);
+        jObj = JSONParse.JSONObject.parse(JSON);
+        JSONElements el = (JSONElements)jObj.get("response").getValue().value;
+        ph = new Photo((JSONObject)el.get(0).value);
+        sendMessage(requests, user_id, random_id, message, ph.toPost());
+    }
+    public static void sendMessage(Requests requests,String user_id, long random_id, String message, String attachment){
+        message = Requests.encodeTextFromHttp(message);
+        requests.createVKResponse("messages.send?"
+                        + "user_id="+user_id
+                        + "&random_id="+random_id
+                        + "&message="+message
+                        + "&attachment="+attachment
+                ); 
     }
     public static void sendMessage(Requests requests,String user_id, long random_id, String message){
-        try{
-           //message = URLEncoder.encode(message, "UTF-8");
-           message = Requests.encodeTextFromHttp(message);
-           requests.createVKResponse("messages.send?"
-                            + "user_id="+user_id
-                            + "&random_id="+random_id
-                            + "&message="+message
-                    ); 
-        }catch(Exception ex){
-            System.out.println(ex);
-        }
+        message = Requests.encodeTextFromHttp(message);
+        requests.createVKResponse("messages.send?"
+                        + "user_id="+user_id
+                        + "&random_id="+random_id
+                        + "&message="+message
+                ); 
     }
     /*
      * offset - Смещение, необходимое для выборки определенного подмножества бесед.

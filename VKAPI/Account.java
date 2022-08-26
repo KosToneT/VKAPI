@@ -5,6 +5,8 @@
  */
 package VKAPI;
 
+import VKAPI.Object.*;
+import java.awt.image.BufferedImage;
 /**
  *
  * @author KosToneT
@@ -88,4 +90,50 @@ public class Account {
     public static String setOffline(Requests requests){
         return requests.createVKResponse(name+"setOffline?");
     } 
+
+    /**
+     * Set profile image
+     * @param Requests requests with key
+     * @param String user_id which set
+     * @param File imageFile
+     *  */ 
+    // public static void setImageProfile(Requests requests, String user_id,File file){
+    //     VKAPI.Object.Photo ph = new VKAPI.Object.Photo();
+    //     String serverurl = ph.getProfileUploadServer(requests, user_id);
+    //     serverurl = Requests.useControlSym(ParseJSON.getArgs("upload_url", serverurl));
+    //     String answer = requests.sendFileOnServer(serverurl, file);
+    //     answer = Requests.useControlSym(answer);
+    //     String server = ParseJSON.getArgs("server", answer);
+    //     String photo = ParseJSON.getArgs("photo", answer);
+    //     photo = photo.replace('\'', '"');
+    //     String hash = ParseJSON.getArgs("hash", answer);
+    //     answer = ph.saveProfilePhoto(requests, server, hash, photo);        
+    // }
+    /**
+     * Set profile image
+     * @param Requests requests with key
+     * @param String user_id which set
+     * @param BufferedImage imageFile
+     *  */ 
+    public static void setImageProfile(Requests requests, String user_id, BufferedImage image){
+        VKAPI.Object.Photo ph = new VKAPI.Object.Photo();
+        String JSON = ph.getProfileUploadServer(requests, user_id);
+        JSONParse.JSONObject jObj = (JSONParse.JSONObject)(JSONParse.JSONObject.parse(JSON).get("response").getValue().value);
+        String serverurl = jObj.get("upload_url").getValue().value+"";
+        serverurl = serverurl.substring(0, serverurl.length());
+        System.out.println(serverurl);
+        JSON = requests.sendImageOnServer(serverurl, image);
+        jObj = (JSONParse.JSONObject)(JSONParse.JSONObject.parse(JSON).get("response").getValue().value);
+        String server = jObj.get("server").getValue().value+"";
+        String photo = jObj.get("photo").getValue().value+"";
+        String hash = jObj.get("hash").getValue().value+"";
+        JSON = ph.saveProfilePhoto(requests, server, hash, photo);
+
+        // answer = Requests.useControlSym(answer);
+        // String server = ParseJSON.getArgs("server", answer);
+        // String photo = ParseJSON.getArgs("photo", answer);
+        // photo = photo.replace('\'', '"');
+        // String hash = ParseJSON.getArgs("hash", answer);
+        // answer = ph.saveProfilePhoto(requests, server, hash, photo);        
+    }
 }

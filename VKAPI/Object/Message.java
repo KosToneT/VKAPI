@@ -15,6 +15,7 @@ public class Message {
     String peer_id ="";
     String random_id ="";
     String text ="";
+    public Message(){}
     public Message(JSONParse.JSONObject jObject){
         date = jObject.get("date").getValue().toString();
         from_id = jObject.get("from_id").getValue().toString();
@@ -31,5 +32,8 @@ public class Message {
     }
     public String getText(){
         return text;
+    }
+    public String getRandomId(){
+        return random_id;
     }
 }

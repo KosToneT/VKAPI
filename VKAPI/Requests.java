@@ -1,14 +1,21 @@
 package VKAPI;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+
+import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
+
+import javax.imageio.ImageIO;
 import javax.net.ssl.HttpsURLConnection;
 
 
@@ -104,6 +111,65 @@ public class Requests {
         }
         return null;
 
+    }
+
+    public String sendImageOnServer(String http, BufferedImage img){
+        try{
+            String typeName = "photo";
+            String attachmentFileName = "photo1.bmp";
+            String crlf = "\r\n";
+            String twoHyphens = "--";
+            String boundary =  "*****";
+            HttpURLConnection httpUrlConnection = null;
+            URL url = new URL(http);
+            httpUrlConnection = (HttpURLConnection) url.openConnection();
+            httpUrlConnection.setUseCaches(false);
+            httpUrlConnection.setDoOutput(true);
+
+            httpUrlConnection.setRequestMethod("POST");
+            httpUrlConnection.setRequestProperty("Connection", "Keep-Alive");
+            httpUrlConnection.setRequestProperty("Cache-Control", "no-cache");
+            httpUrlConnection.setRequestProperty(
+                "Content-Type", "multipart/form-data;boundary=" + boundary);
+            DataOutputStream request = new DataOutputStream(httpUrlConnection.getOutputStream());
+            request.writeBytes(twoHyphens + boundary + crlf);
+            request.writeBytes("Content-Disposition: form-data; name=\"" +typeName
+                                + "\";filename=\"" + attachmentFileName 
+                                + "\"" + crlf);
+            request.writeBytes(crlf);
+
+            //img.getWidth(observer);
+
+            ImageIO.write((RenderedImage)img, "jpg",request);
+            
+
+            //request.write(isr.readAllBytes());
+            request.writeBytes(crlf);
+            request.writeBytes(twoHyphens + boundary + twoHyphens + crlf);
+            request.flush();
+            request.close();
+
+            InputStream responseStream = new BufferedInputStream(httpUrlConnection.getInputStream());
+            BufferedReader responseStreamReader = new BufferedReader(new InputStreamReader(responseStream));
+            String line = "";
+            StringBuilder stringBuilder = new StringBuilder();
+            while ((line = responseStreamReader.readLine()) != null) {
+                stringBuilder.append(line).append("\n");
+            }
+            responseStreamReader.close();
+            String response = stringBuilder.toString();
+            return response;
+        }catch(Exception ex){
+            System.out.println(ex);
+        }
+        return null;
+
+    }
+    public static String useControlSym(String str){
+        str = str.replace("\\n", "\n");
+        str = str.replace("\\/","/" );
+        str = str.replace("\\\"","'" );
+        return str;
     }
 
     public static String encodeTextFromHttp(String str){

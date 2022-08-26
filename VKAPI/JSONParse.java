@@ -2,7 +2,6 @@ package VKAPI;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.math.BigDecimal;
 import java.net.URL;
 import javax.net.ssl.HttpsURLConnection;
 import java.util.LinkedList;
